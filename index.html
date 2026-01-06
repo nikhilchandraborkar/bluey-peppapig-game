@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bluey vs Peppa Pig Game</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', 'Poppins', cursive;
+      background: linear-gradient(180deg, #fdf6ff, #e0f7ff);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        url('https://upload.wikimedia.org/wikipedia/en/3/3e/Bluey_%282018_TV_series%29_title_card.png') left bottom/300px no-repeat,
+        url('https://upload.wikimedia.org/wikipedia/en/4/4f/Peppa_Pig_logo.svg') right bottom/300px no-repeat;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    h1 { font-size: 2.5rem; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .totals { font-size: 1.5rem; }
+    .timer { font-size:1.6rem; background:#fff; padding:10px 20px; border-radius:16px; }
+    .winner { font-size:2rem; margin:20px 0; animation: pop 1s infinite alternate; }
+    @keyframes pop { from{transform:scale(1);} to{transform:scale(1.1);} }
+    .teams { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; max-width:1100px; margin:auto; }
+    .team { border-radius:24px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,.1); }
+    .blue { background:#d6ecff; border:4px solid #3b82f6; }
+    .pink { background:#ffe0ef; border:4px solid #ec4899; }
+    .player { background:#fff; border-radius:16px; padding:10px; margin:8px 0; display:flex; gap:10px; justify-content:space-between; align-items:center; }
+    .avatar { width:40px; height:40px; }
+    input { border:none; font-size:1rem; width:120px; }
+    button { background:#22c55e; color:#fff; border:none; border-radius:12px; padding:6px 14px; font-size:1.1rem; cursor:pointer; }
+    .reset { background:#ef4444; margin-top:20px; }
+    .lock { background:#6366f1; }
+    .fullscreen { background:#0ea5e9; }
+    .score { font-weight:bold; margin:0 10px; }
+    .medal { font-size:1.4rem; }
+    .large { font-size: 1.6em; }
+    .large button { padding: 16px 26px; font-size: 1.4em; }
+    canvas { position:fixed; top:0; left:0; pointer-events:none; }
+  </style>
+</head>
+<body>
+<h1>🎮 Bluey vs Peppa Pig Game 🎀</h1>
+
+<div class="topbar">
+  <div class="totals">🔵 <span id="blueTotal">0</span> | 🐷 <span id="pinkTotal">0</span></div>
+  <div class="timer">⏱️ <span id="time">05:00</span></div>
+  <div class="totals">🏁 Round <span id="round">1</span> / <span id="maxRounds">3</span></div>
+  <button class="lock" onclick="toggleLock()">🔐 Teacher Lock</button>
+  <button class="fullscreen" onclick="toggleLargeMode()">📺 Smartboard Mode</button>
+  <button class="fullscreen" onclick="goFullscreen()">📱 Full Screen</button>
+</div>
+
+<div class="teams">
+  <div class="team blue">
+    <h2>🔵 Bluey Team</h2>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/bluey/images/1/1f/Bluey_icon.png" /> <input value="Bluey 1" /> <span class="score" id="b1">0</span><span class="medal" id="mb1"></span><button onclick="addPoint('b1')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/bluey/images/1/1f/Bluey_icon.png" /> <input value="Bluey 2" /> <span class="score" id="b2">0</span><span class="medal" id="mb2"></span><button onclick="addPoint('b2')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/bluey/images/1/1f/Bluey_icon.png" /> <input value="Bluey 3" /> <span class="score" id="b3">0</span><span class="medal" id="mb3"></span><button onclick="addPoint('b3')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/bluey/images/1/1f/Bluey_icon.png" /> <input value="Bluey 4" /> <span class="score" id="b4">0</span><span class="medal" id="mb4"></span><button onclick="addPoint('b4')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/bluey/images/1/1f/Bluey_icon.png" /> <input value="Bluey 5" /> <span class="score" id="b5">0</span><span class="medal" id="mb5"></span><button onclick="addPoint('b5')">+</button></div>
+  </div>
+
+  <div class="team pink">
+    <h2>🐷 Peppa Pig Team</h2>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/peppa/images/4/4e/Peppa_icon.png" /> <input value="Peppa 1" /> <span class="score" id="p1">0</span><span class="medal" id="mp1"></span><button onclick="addPoint('p1')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/peppa/images/4/4e/Peppa_icon.png" /> <input value="Peppa 2" /> <span class="score" id="p2">0</span><span class="medal" id="mp2"></span><button onclick="addPoint('p2')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/peppa/images/4/4e/Peppa_icon.png" /> <input value="Peppa 3" /> <span class="score" id="p3">0</span><span class="medal" id="mp3"></span><button onclick="addPoint('p3')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/peppa/images/4/4e/Peppa_icon.png" /> <input value="Peppa 4" /> <span class="score" id="p4">0</span><span class="medal" id="mp4"></span><button onclick="addPoint('p4')">+</button></div>
+    <div class="player"><img class="avatar" src="https://static.wikia.nocookie.net/peppa/images/4/4e/Peppa_icon.png" /> <input value="Peppa 5" /> <span class="score" id="p5">0</span><span class="medal" id="mp5"></span><button onclick="addPoint('p5')">+</button></div>
+  </div>
+</div>
+
+<div id="winner" class="winner"></div>
+<button class="reset" onclick="resetGame()">🔄 Reset Game</button>
+
+<canvas id="confetti"></canvas>
+<audio id="ding" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+<audio id="blueyVoice" src="https://www.soundjay.com/human/sounds/child-cheer-01.mp3"></audio>
+<audio id="peppaVoice" src="https://www.soundjay.com/human/sounds/child-cheer-02.mp3"></audio>
+
+<script>
+let locked = false;
+let currentRound = 1;
+let maxRounds = 3;
+let tournamentBlue = 0;
+let tournamentPink = 0;
+let time = 300;
+
+document.getElementById('maxRounds').textContent = maxRounds;
+
+const timerInterval = setInterval(() => {
+  if (time > 0) {
+    time--;
+    document.getElementById('time').textContent = new Date(time * 1000).toISOString().substring(14, 19);
+    if (time === 0) freezeGame();
+  }
+}, 1000);
+
+function toggleLock() {
+  locked = !locked;
+  document.querySelectorAll('button').forEach(b => {
+    if (!b.classList.contains('lock') && !b.classList.contains('fullscreen')) b.disabled = locked;
+  });
+}
+
+function addPoint(id) {
+  if (locked) return;
+  const el = document.getElementById(id);
+  el.textContent = Number(el.textContent) + 1;
+  document.getElementById('ding').play().catch(() => {});
+  if (id.startsWith('b')) document.getElementById('blueyVoice').play().catch(() => {});
+  if (id.startsWith('p')) document.getElementById('peppaVoice').play().catch(() => {});
+  update();
+}
+
+function update() {
+  const all = ['b1','b2','b3','b4','b5','p1','p2','p3','p4','p5'];
+  const scores = all.map(id => ({ id, score: Number(document.getElementById(id).textContent) }));
+
+  const blue = scores.filter(s => s.id.startsWith('b')).reduce((a,b) => a + b.score, 0);
+  const pink = scores.filter(s => s.id.startsWith('p')).reduce((a,b) => a + b.score, 0);
+
+  document.getElementById('blueTotal').textContent = blue;
+  document.getElementById('pinkTotal').textContent = pink;
+
+  document.querySelectorAll('.medal').forEach(m => m.textContent = '');
+  const top = Math.max(...scores.map(s => s.score));
+  if (top > 0) scores.filter(s => s.score === top).forEach(s => document.getElementById('m' + s.id).textContent = '🥇');
+
+  const w = document.getElementById('winner');
+  if (blue > pink) w.textContent = '🏆 Bluey Wins!';
+  else if (pink > blue) w.textContent = '🏆 Peppa Pig Wins!';
+  else w.textContent = '🤝 Tie Game';
+}
+
+function resetGame() {
+  time = 300;
+  document.getElementById('time').textContent = '05:00';
+  locked = false;
+  document.querySelectorAll('button').forEach(b => b.disabled = false);
+  document.querySelectorAll('.score').forEach(s => s.textContent = 0);
+  document.getElementById('winner').textContent = '';
+  update();
+}
+
+function freezeGame() {
+  locked = true;
+  document.querySelectorAll('button').forEach(b => {
+    if (!b.classList.contains('lock') && !b.classList.contains('fullscreen')) b.disabled = true;
+  });
+  const blue = Number(document.getElementById('blueTotal').textContent);
+  const pink = Number(document.getElementById('pinkTotal').textContent);
+  if (blue > pink) tournamentBlue++;
+  else if (pink > blue) tournamentPink++;
+  document.getElementById('winner').textContent = blue > pink ? '🏆 Bluey Wins!' : pink > blue ? '🏆 Peppa Pig Wins!' : '🤝 Tie Game';
+}
+
+function toggleLargeMode() {
+  document.body.classList.toggle('large');
+}
+
+function goFullscreen() {
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch((err) => {
+      console.log('Fullscreen failed:', err);
+    });
+  }
+}
+</script>
+</body>
+</html>
