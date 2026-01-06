@@ -45,6 +45,31 @@
     .large { font-size: 1.6em; }
     .large button { padding: 16px 26px; font-size: 1.4em; }
     canvas { position:fixed; top:0; left:0; pointer-events:none; }
+
+    /* Mobile/Tablet Responsive */
+    @media (max-width: 600px) {
+      .teams {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      .topbar {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      h1 { font-size: 2rem; }
+      .player {
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+      }
+      .avatar { width: 30px; height: 30px; }
+      button { padding: 10px 16px; font-size: 1rem; width: 80%; }
+      .score { font-size: 1rem; }
+      .timer { font-size: 1.4rem; padding: 8px 16px; }
+      .totals { font-size: 1.2rem; }
+    }
   </style>
 </head>
 <body>
@@ -91,8 +116,6 @@
 let locked = false;
 let currentRound = 1;
 let maxRounds = 3;
-let tournamentBlue = 0;
-let tournamentPink = 0;
 let time = 300;
 
 document.getElementById('maxRounds').textContent = maxRounds;
@@ -125,17 +148,13 @@ function addPoint(id) {
 function update() {
   const all = ['b1','b2','b3','b4','b5','p1','p2','p3','p4','p5'];
   const scores = all.map(id => ({ id, score: Number(document.getElementById(id).textContent) }));
-
   const blue = scores.filter(s => s.id.startsWith('b')).reduce((a,b) => a + b.score, 0);
   const pink = scores.filter(s => s.id.startsWith('p')).reduce((a,b) => a + b.score, 0);
-
   document.getElementById('blueTotal').textContent = blue;
   document.getElementById('pinkTotal').textContent = pink;
-
   document.querySelectorAll('.medal').forEach(m => m.textContent = '');
   const top = Math.max(...scores.map(s => s.score));
   if (top > 0) scores.filter(s => s.score === top).forEach(s => document.getElementById('m' + s.id).textContent = '🥇');
-
   const w = document.getElementById('winner');
   if (blue > pink) w.textContent = '🏆 Bluey Wins!';
   else if (pink > blue) w.textContent = '🏆 Peppa Pig Wins!';
@@ -159,8 +178,6 @@ function freezeGame() {
   });
   const blue = Number(document.getElementById('blueTotal').textContent);
   const pink = Number(document.getElementById('pinkTotal').textContent);
-  if (blue > pink) tournamentBlue++;
-  else if (pink > blue) tournamentPink++;
   document.getElementById('winner').textContent = blue > pink ? '🏆 Bluey Wins!' : pink > blue ? '🏆 Peppa Pig Wins!' : '🤝 Tie Game';
 }
 
