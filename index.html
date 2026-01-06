@@ -100,7 +100,7 @@ document.getElementById('maxRounds').textContent = maxRounds;
 const timerInterval = setInterval(() => {
   if (time > 0) {
     time--;
-    document.getElementById('time').textContent = new Date(time * 1000).toISOString().substr(14, 5);
+    document.getElementById('time').textContent = new Date(time * 1000).toISOString().substring(14, 19);
     if (time === 0) freezeGame();
   }
 }, 1000);
@@ -116,9 +116,9 @@ function addPoint(id) {
   if (locked) return;
   const el = document.getElementById(id);
   el.textContent = Number(el.textContent) + 1;
-  document.getElementById('ding').play();
-  if (id.startsWith('b')) document.getElementById('blueyVoice').play();
-  if (id.startsWith('p')) document.getElementById('peppaVoice').play();
+  document.getElementById('ding').play().catch(() => {});
+  if (id.startsWith('b')) document.getElementById('blueyVoice').play().catch(() => {});
+  if (id.startsWith('p')) document.getElementById('peppaVoice').play().catch(() => {});
   update();
 }
 
@@ -170,7 +170,9 @@ function toggleLargeMode() {
 
 function goFullscreen() {
   if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen().catch(() => {});
+    document.documentElement.requestFullscreen().catch((err) => {
+      console.log('Fullscreen failed:', err);
+    });
   }
 }
 </script>
